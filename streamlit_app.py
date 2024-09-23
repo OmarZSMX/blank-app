@@ -10,11 +10,11 @@ import math
 
 # Función para calcular Fitness, Fatiga y Forma (modelos simples basados en el tiempo total de entrenamiento)
 def calculate_fitness_fatigue_forma(training_data):
-    # Fitness: Media del tiempo de entrenamiento en los últimos 30 días
-    fitness = training_data['Tiempo (min)'].rolling(window=30).mean().fillna(0)
+    # Fitness: Media del tiempo de entrenamiento en las últimas 30 sesiones (en horas)
+    fitness = training_data['Tiempo (hrs)'].rolling(window=30).mean().fillna(0)
     
-    # Fatiga: Media del tiempo de entrenamiento en los últimos 7 días
-    fatiga = training_data['Tiempo (min)'].rolling(window=7).mean().fillna(0)
+    # Fatiga: Media del tiempo de entrenamiento en las últimas 7 sesiones (en horas)
+    fatiga = training_data['Tiempo (hrs)'].rolling(window=7).mean().fillna(0)
     
     # Forma: Diferencia entre fitness y fatiga
     forma = fitness - fatiga
@@ -26,7 +26,7 @@ st.title("App de Entrenamientos de Ciclismo")
 
 # Input para los datos del entrenamiento
 st.header("Inserta tus datos de entrenamiento")
-tiempo = st.number_input("Tiempo (min)", min_value=0, value=60)
+tiempo = st.number_input("Tiempo (hrs)", min_value=0.0, value=1.0, step=0.1)
 distancia = st.number_input("Distancia (km)", min_value=0.0, value=20.0)
 velocidad_promedio = st.number_input("Velocidad promedio (km/h)", min_value=0.0, value=25.0)
 fc_promedio = st.number_input("Frecuencia cardiaca promedio (bpm)", min_value=0, value=140)
@@ -36,12 +36,12 @@ fc_maxima = st.number_input("Frecuencia cardiaca máxima (bpm)", min_value=0, va
 if st.button("Agregar entrenamiento"):
     # Crear o cargar los datos
     if 'training_data' not in st.session_state:
-        st.session_state['training_data'] = pd.DataFrame(columns=['Tiempo (min)', 'Distancia (km)', 'Velocidad promedio (km/h)', 
+        st.session_state['training_data'] = pd.DataFrame(columns=['Tiempo (hrs)', 'Distancia (km)', 'Velocidad promedio (km/h)', 
                                                                   'FC Promedio (bpm)', 'FC Máxima (bpm)'])
 
     # Agregar los datos nuevos
     st.session_state['training_data'] = st.session_state['training_data'].append({
-        'Tiempo (min)': tiempo,
+        'Tiempo (hrs)': tiempo,
         'Distancia (km)': distancia,
         'Velocidad promedio (km/h)': velocidad_promedio,
         'FC Promedio (bpm)': fc_promedio,
