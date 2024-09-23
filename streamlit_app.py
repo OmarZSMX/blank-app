@@ -1,7 +1,3 @@
-cd /ruta/a/tu/proyecto
-pip install plotly
-streamlit run cycling_app.py
-
 import streamlit as st
 
 st.title("🎈 My new app")
