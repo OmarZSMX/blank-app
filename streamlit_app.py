@@ -1,3 +1,4 @@
+pip install plotly
 import streamlit as st
 
 st.title("🎈 My new app")
