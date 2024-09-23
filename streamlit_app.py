@@ -6,22 +6,16 @@ st.write(
 )
 import streamlit as st
 import pandas as pd
-import math
+import plotly.graph_objects as go
 
-# Función para calcular Fitness, Fatiga y Forma (modelos simples basados en el tiempo total de entrenamiento)
+# Función para calcular Fitness, Fatiga y Forma
 def calculate_fitness_fatigue_forma(training_data):
-    # Fitness: Media del tiempo de entrenamiento en las últimas 30 sesiones (en horas)
     fitness = training_data['Tiempo (hrs)'].rolling(window=30).mean().fillna(0)
-    
-    # Fatiga: Media del tiempo de entrenamiento en las últimas 7 sesiones (en horas)
     fatiga = training_data['Tiempo (hrs)'].rolling(window=7).mean().fillna(0)
-    
-    # Forma: Diferencia entre fitness y fatiga
     forma = fitness - fatiga
-    
     return fitness, fatiga, forma
 
-# Configuración de la aplicación en Streamlit
+# Configuración de la aplicación
 st.title("App de Entrenamientos de Ciclismo")
 
 # Input para los datos del entrenamiento
@@ -56,12 +50,52 @@ st.header("Historial de Entrenamientos")
 if 'training_data' in st.session_state:
     st.write(st.session_state['training_data'])
 
-    # Cálculo de Fitness, Fatiga y Forma
-    fitness, fatiga, forma = calculate_fitness_fatigue_forma(st.session_state['training_data'])
+    # Solo mostrar el gráfico si hay suficientes datos
+    if len(st.session_state['training_data']) >= 7:
+        # Cálculo de Fitness, Fatiga y Forma
+        fitness, fatiga, forma = calculate_fitness_fatigue_forma(st.session_state['training_data'])
 
-    st.subheader("Indicadores")
-    st.line_chart(pd.DataFrame({'Fitness': fitness, 'Fatiga': fatiga, 'Forma': forma}))
+        # Crear el gráfico con Plotly
+        fig = go.Figure()
+
+        # Fitness (línea azul)
+        fig.add_trace(go.Scatter(
+            x=st.session_state['training_data'].index, 
+            y=fitness, 
+            mode='lines', 
+            name='Fitness', 
+            line=dict(color='blue', width=3)
+        ))
+
+        # Fatiga (línea roja)
+        fig.add_trace(go.Scatter(
+            x=st.session_state['training_data'].index, 
+            y=fatiga, 
+            mode='lines', 
+            name='Fatiga', 
+            line=dict(color='red', width=3)
+        ))
+
+        # Forma (línea verde)
+        fig.add_trace(go.Scatter(
+            x=st.session_state['training_data'].index, 
+            y=forma, 
+            mode='lines', 
+            name='Forma', 
+            line=dict(color='green', width=3)
+        ))
+
+        # Ajustes del layout (parecido a Strava)
+        fig.update_layout(
+            title="Fitness, Fatiga y Forma",
+            xaxis_title="Entrenamientos",
+            yaxis_title="Valor",
+            template="plotly_white",
+            hovermode="x unified"
+        )
+
+        st.plotly_chart(fig)
+    else:
+        st.write("Necesitas al menos 7 entrenamientos para ver el gráfico de Fatiga, Fitness y Forma.")
 else:
     st.write("Aún no hay entrenamientos registrados.")
-
-# Correr la aplicación con: streamlit run cycling_app.py
