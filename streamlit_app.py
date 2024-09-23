@@ -39,14 +39,17 @@ if st.button("Agregar entrenamiento"):
         st.session_state['training_data'] = pd.DataFrame(columns=['Tiempo (hrs)', 'Distancia (km)', 'Velocidad promedio (km/h)', 
                                                                   'FC Promedio (bpm)', 'FC Máxima (bpm)'])
 
-    # Agregar los datos nuevos
-    st.session_state['training_data'] = st.session_state['training_data'].append({
-        'Tiempo (hrs)': tiempo,
-        'Distancia (km)': distancia,
-        'Velocidad promedio (km/h)': velocidad_promedio,
-        'FC Promedio (bpm)': fc_promedio,
-        'FC Máxima (bpm)': fc_maxima
-    }, ignore_index=True)
+    # Crear un nuevo DataFrame con el entrenamiento actual
+    new_row = pd.DataFrame({
+        'Tiempo (hrs)': [tiempo],
+        'Distancia (km)': [distancia],
+        'Velocidad promedio (km/h)': [velocidad_promedio],
+        'FC Promedio (bpm)': [fc_promedio],
+        'FC Máxima (bpm)': [fc_maxima]
+    })
+
+    # Agregar los datos nuevos usando pd.concat()
+    st.session_state['training_data'] = pd.concat([st.session_state['training_data'], new_row], ignore_index=True)
 
 # Mostrar datos registrados
 st.header("Historial de Entrenamientos")
